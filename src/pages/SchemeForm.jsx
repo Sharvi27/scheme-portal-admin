@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase.js'
 import { Btn, Input, Select, Textarea, Badge } from '../components/ui.jsx'
 
-const emptyScheme = { name: '', description: '', benefits: '', issuing_body: 'central', is_active: true }
+const emptyScheme = { name: '', description: '', benefits: '', documents_required: '', issuing_body: 'central', is_active: true }
 
 function RuleEditor({ attribute, rule, onChange, onRemove }) {
   const { key, label, data_type } = attribute
@@ -84,7 +84,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
   const isEdit = !!scheme
   const [form, setForm] = useState(isEdit ? {
     name: scheme.name, description: scheme.description || '',
-    benefits: scheme.benefits || '', issuing_body: scheme.issuing_body || 'central',
+    benefits: scheme.benefits || '', documents_required: scheme.documents_required || '', issuing_body: scheme.issuing_body || 'central',
     is_active: scheme.is_active,
   } : emptyScheme)
 
@@ -138,7 +138,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
       if (isEdit) {
         const { error: err } = await supabase.from('schemes').update({
           name: form.name, description: form.description,
-          benefits: form.benefits, issuing_body: form.issuing_body, is_active: form.is_active,
+          benefits: form.benefits, documents_required: form.documents_required, issuing_body: form.issuing_body, is_active: form.is_active,
         }).eq('id', schemeId)
         if (err) throw err
 
@@ -147,7 +147,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
       } else {
         const { data, error: err } = await supabase.from('schemes').insert({
           name: form.name, description: form.description,
-          benefits: form.benefits, issuing_body: form.issuing_body, is_active: form.is_active,
+          benefits: form.benefits, documents_required: form.documents_required, issuing_body: form.issuing_body, is_active: form.is_active,
         }).select().single()
         if (err) throw err
         schemeId = data.id
@@ -183,6 +183,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
       </div>
       <Textarea label="Description" value={form.description} onChange={v => setField('description', v)} placeholder="Brief description of the scheme..." rows={3} />
       <Textarea label="Benefits" value={form.benefits} onChange={v => setField('benefits', v)} placeholder="What benefits does this scheme provide?" rows={4} />
+      <Textarea label="Documents Required" value={form.documents_required} onChange={v => setField('documents_required', v)} placeholder="e.g. Aadhaar card, bank account details, income certificate..." rows={3} />
 
       {/* Eligibility rules */}
       <div>
