@@ -109,7 +109,8 @@ export default function App() {
             { label: 'Total Schemes', value: schemes.length, icon: '📋' },
             { label: 'Active', value: schemes.filter(s => s.is_active).length, icon: '✅' },
             { label: 'Delhi Schemes', value: schemes.filter(s => s.issuing_body === 'delhi').length, icon: '🏙️' },
-            { label: 'Central Schemes', value: schemes.filter(s => s.issuing_body === 'central').length, icon: '🇮🇳' },
+            { label: 'Indian Govt', value: schemes.filter(s => s.issuing_body === 'central').length, icon: '🇮🇳' },
+            { label: 'Haryana Schemes', value: schemes.filter(s => s.issuing_body === 'haryana').length, icon: '🟢' },
             { label: 'Attributes', value: attributes.length, icon: '🏷️' },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{

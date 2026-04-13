@@ -55,7 +55,7 @@ export default function Schemes({ schemes, attributes, onRefresh }) {
           style={{ padding: '8px 14px', border: '1.5px solid var(--border)', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem', outline: 'none', minWidth: 220 }}
         />
         {[
-          { key: 'filterBody', val: filterBody, set: setFilterBody, opts: [['all','All'], ['delhi','Delhi Govt'], ['central','Central Govt']] },
+          { key: 'filterBody', val: filterBody, set: setFilterBody, opts: [['all','All'], ['delhi','Delhi Govt'], ['central','Indian Govt'], ['haryana','Haryana Govt']] },
           { key: 'filterStatus', val: filterStatus, set: setFilterStatus, opts: [['all','All Status'], ['active','Active'], ['inactive','Inactive']] },
         ].map(({ key, val, set, opts }) => (
           <select key={key} value={val} onChange={e => set(e.target.value)}
@@ -82,8 +82,8 @@ export default function Schemes({ schemes, attributes, onRefresh }) {
               <tr key={s.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <td style={{ padding: '12px 16px', fontWeight: 500, maxWidth: 320 }}>{s.name}</td>
                 <td style={{ padding: '12px 16px' }}>
-                  <Badge color={s.issuing_body === 'delhi' ? 'saffron' : 'navy'}>
-                    {s.issuing_body === 'delhi' ? '🏙️ Delhi' : '🇮🇳 Central'}
+                  <Badge color={s.issuing_body === 'delhi' ? 'saffron' : s.issuing_body === 'haryana' ? 'green' : 'navy'}>
+                    {s.issuing_body === 'delhi' ? '🏙️ Delhi' : s.issuing_body === 'haryana' ? '🟢 Haryana' : '🇮🇳 Indian'}
                   </Badge>
                 </td>
                 <td style={{ padding: '12px 16px' }}>

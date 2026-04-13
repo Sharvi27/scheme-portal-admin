@@ -177,7 +177,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <Input label="Scheme Name" value={form.name} onChange={v => setField('name', v)} placeholder="e.g. Delhi Old Age Pension" required style={{ gridColumn: '1 / -1' }} />
         <Select label="Issuing Body" value={form.issuing_body} onChange={v => setField('issuing_body', v)}
-          options={[{ value: 'central', label: '🇮🇳 Central Government' }, { value: 'delhi', label: '🏙️ Delhi Government' }]} />
+          options={[{ value: 'central', label: '🇮🇳 Indian Government' }, { value: 'delhi', label: '🏙️ Delhi Government' }, { value: 'haryana', label: '🟢 Haryana Government' }]} />
         <Select label="Status" value={String(form.is_active)} onChange={v => setField('is_active', v === 'true')}
           options={[{ value: 'true', label: 'Active' }, { value: 'false', label: 'Inactive' }]} />
       </div>
