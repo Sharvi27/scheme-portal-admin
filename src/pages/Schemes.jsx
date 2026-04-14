@@ -70,7 +70,7 @@ export default function Schemes({ schemes, attributes, onRefresh }) {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--bg)' }}>
-              {['Name', 'Issuing Body', 'Status', 'Actions'].map(h => (
+              {['Name', 'Issuing Body', 'Type', 'Status', 'Actions'].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid var(--border)' }}>{h}</th>
               ))}
             </tr>
@@ -85,6 +85,9 @@ export default function Schemes({ schemes, attributes, onRefresh }) {
                   <Badge color={s.issuing_body === 'delhi' ? 'saffron' : s.issuing_body === 'haryana' ? 'green' : 'navy'}>
                     {s.issuing_body === 'delhi' ? '🏙️ Delhi' : s.issuing_body === 'haryana' ? '🟢 Haryana' : '🇮🇳 Indian'}
                   </Badge>
+                </td>
+                <td style={{ padding: '12px 16px' }}>
+                  {s.scheme_type ? <Badge color="gray">{s.scheme_type}</Badge> : <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>—</span>}
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <Badge color={s.is_active ? 'green' : 'red'}>{s.is_active ? 'Active' : 'Inactive'}</Badge>
