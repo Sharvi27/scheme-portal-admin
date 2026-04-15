@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { supabase } from './supabase.js'
 import Login from './pages/Login.jsx'
 import Schemes from './pages/Schemes.jsx'
@@ -59,6 +59,7 @@ export default function App() {
   const [schemes, setSchemes] = useState([])
   const [attributes, setAttributes] = useState([])
   const [dataLoading, setDataLoading] = useState(false)
+  const [dataError, setDataError] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,22 +72,37 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setDataLoading(true)
-    const [{ data: s }, { data: a }] = await Promise.all([
+    setDataError(null)
+    const [{ data: s, error: err1 }, { data: a, error: err2 }] = await Promise.all([
       supabase.from('schemes').select('*').order('name'),
       supabase.from('attribute_definitions').select('*').order('label'),
     ])
-    setSchemes(s || [])
-    setAttributes(a || [])
+    if (err1 || err2) {
+      setDataError((err1 || err2).message)
+    } else {
+      setSchemes(s || [])
+      setAttributes(a || [])
+    }
     setDataLoading(false)
-  }
+  }, [])
 
   useEffect(() => {
     if (session) loadData()
-  }, [session])
+  }, [session, loadData])
 
   const handleLogout = () => supabase.auth.signOut()
+
+  // Memoised stats — not recomputed on every render
+  const stats = useMemo(() => [
+    { label: 'Total Schemes',    value: schemes.length,                                        icon: '📋' },
+    { label: 'Active',           value: schemes.filter(s => s.is_active).length,               icon: '✅' },
+    { label: 'Delhi Schemes',    value: schemes.filter(s => s.issuing_body === 'delhi').length, icon: '🏙️' },
+    { label: 'Central Govt',     value: schemes.filter(s => s.issuing_body === 'central').length, icon: '🇮🇳' },
+    { label: 'Haryana Schemes',  value: schemes.filter(s => s.issuing_body === 'haryana').length, icon: '🟢' },
+    { label: 'Attributes',       value: attributes.length,                                     icon: '🏷️' },
+  ], [schemes, attributes])
 
   if (authLoading) {
     return (
@@ -105,14 +121,7 @@ export default function App() {
       <main style={{ flex: 1, padding: '32px 28px', overflowY: 'auto', minWidth: 0 }}>
         {/* Stats bar */}
         <div style={{ display: 'flex', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>
-          {[
-            { label: 'Total Schemes', value: schemes.length, icon: '📋' },
-            { label: 'Active', value: schemes.filter(s => s.is_active).length, icon: '✅' },
-            { label: 'Delhi Schemes', value: schemes.filter(s => s.issuing_body === 'delhi').length, icon: '🏙️' },
-            { label: 'Indian Govt', value: schemes.filter(s => s.issuing_body === 'central').length, icon: '🇮🇳' },
-            { label: 'Haryana Schemes', value: schemes.filter(s => s.issuing_body === 'haryana').length, icon: '🟢' },
-            { label: 'Attributes', value: attributes.length, icon: '🏷️' },
-          ].map(({ label, value, icon }) => (
+          {stats.map(({ label, value, icon }) => (
             <div key={label} style={{
               background: 'white', borderRadius: 'var(--radius)', border: '1px solid var(--border)',
               padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12,
@@ -126,6 +135,16 @@ export default function App() {
             </div>
           ))}
         </div>
+
+        {/* Data error with retry */}
+        {dataError && (
+          <div style={{ background: 'var(--danger-bg)', border: '1px solid #fca5a5', borderRadius: 'var(--radius-sm)', padding: '14px 18px', color: 'var(--danger)', fontSize: '0.9rem', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>⚠️ Failed to load data: {dataError}</span>
+            <button onClick={loadData} style={{ marginLeft: 12, fontSize: '0.85rem', color: 'var(--danger)', background: 'none', border: '1px solid var(--danger)', borderRadius: 'var(--radius-sm)', padding: '4px 10px', cursor: 'pointer' }}>
+              Retry
+            </button>
+          </div>
+        )}
 
         {dataLoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><Spinner /></div>

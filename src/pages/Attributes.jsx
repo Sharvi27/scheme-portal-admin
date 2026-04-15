@@ -19,17 +19,19 @@ export default function Attributes({ attributes, onRefresh }) {
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type })
-    setTimeout(() => setToast(null), 3000)
+    // Errors persist until manually closed; success auto-dismisses
+    if (type !== 'error') setTimeout(() => setToast(null), 3000)
   }
 
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const closeModal = () => { setShowModal(false); setForm(emptyForm) }
 
   const handleSave = async () => {
     if (!form.key || !form.label || !form.data_type) {
       showToast('Key, label, and type are required.', 'error'); return
     }
     setSaving(true)
-    // Parse options for enum type
     let options = null
     if (form.data_type === 'enum' && form.options) {
       options = form.options.split(',').map(s => s.trim()).filter(Boolean)
@@ -43,8 +45,7 @@ export default function Attributes({ attributes, onRefresh }) {
     setSaving(false)
     if (error) { showToast(error.message, 'error'); return }
     showToast('Attribute added successfully.')
-    setShowModal(false)
-    setForm(emptyForm)
+    closeModal()
     onRefresh()
   }
 
@@ -77,7 +78,14 @@ export default function Attributes({ attributes, onRefresh }) {
             </tr>
           </thead>
           <tbody>
-            {attributes.map((attr, i) => (
+            {/* Empty state */}
+            {attributes.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  No attributes yet. Add one to start filtering schemes.
+                </td>
+              </tr>
+            ) : attributes.map((attr, i) => (
               <tr key={attr.id} style={{ borderBottom: i < attributes.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <td style={{ padding: '12px 16px', fontFamily: 'DM Mono, monospace', fontSize: '0.82rem', color: 'var(--navy)' }}>{attr.key}</td>
                 <td style={{ padding: '12px 16px', fontWeight: 500 }}>{attr.label}</td>
@@ -87,7 +95,9 @@ export default function Attributes({ attributes, onRefresh }) {
                   </Badge>
                 </td>
                 <td style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  {attr.options ? (Array.isArray(attr.options) ? attr.options.join(', ') : JSON.stringify(attr.options)) : '—'}
+                  {attr.options
+                    ? (Array.isArray(attr.options) ? attr.options.join(', ') : JSON.parse(attr.options).join(', '))
+                    : '—'}
                 </td>
                 <td style={{ padding: '12px 16px' }}>
                   <Badge color={attr.is_active ? 'green' : 'red'}>{attr.is_active ? 'Active' : 'Inactive'}</Badge>
@@ -104,10 +114,12 @@ export default function Attributes({ attributes, onRefresh }) {
       </Card>
 
       {showModal && (
-        <Modal title="Add New Attribute" onClose={() => { setShowModal(false); setForm(emptyForm) }}>
+        <Modal title="Add New Attribute" onClose={closeModal}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Input label="Key" value={form.key} onChange={v => setField('key', v)} placeholder="e.g. has_land_ownership" required />
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: -10 }}>Lowercase, underscores only. This is the internal identifier.</p>
+            <div>
+              <Input label="Key" value={form.key} onChange={v => setField('key', v)} placeholder="e.g. has_land_ownership" required />
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 4 }}>Lowercase, underscores only. This is the internal identifier.</p>
+            </div>
             <Input label="Display Label" value={form.label} onChange={v => setField('label', v)} placeholder="e.g. Has Land Ownership" required />
             <Select label="Data Type" value={form.data_type} onChange={v => setField('data_type', v)} options={DATA_TYPE_OPTIONS} required />
             {form.data_type === 'enum' && (
@@ -124,7 +136,7 @@ export default function Attributes({ attributes, onRefresh }) {
               </p>
             )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-              <Btn variant="ghost" onClick={() => { setShowModal(false); setForm(emptyForm) }}>Cancel</Btn>
+              <Btn variant="ghost" onClick={closeModal}>Cancel</Btn>
               <Btn onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Add Attribute'}</Btn>
             </div>
           </div>

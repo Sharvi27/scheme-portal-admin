@@ -10,10 +10,16 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) { setError('Please enter email and password.'); return }
-    setLoading(true); setError('')
+    setLoading(true)
+    setError('')
     const { error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) setError(err.message)
     setLoading(false)
+  }
+
+  // Allow submitting with Enter key from either field
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleLogin()
   }
 
   return (
@@ -33,8 +39,10 @@ export default function Login() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="admin@example.com" required />
-          <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" required />
+          <Input label="Email" type="email" value={email} onChange={setEmail}
+            placeholder="admin@example.com" required onKeyDown={handleKeyDown} />
+          <Input label="Password" type="password" value={password} onChange={setPassword}
+            placeholder="••••••••" required onKeyDown={handleKeyDown} />
 
           {error && (
             <div style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}>
