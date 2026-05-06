@@ -1,43 +1,65 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* ── Shared with public site ── */
   --navy: #0f2044;
   --navy-light: #1a3260;
   --saffron: #e8832a;
-  --bg: #f5f6fa;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #1a202c;
-  --text-muted: #64748b;
-  --danger: #dc2626;
+  --saffron-light: #f5a855;
+  --cream: #fdf8f2;
+  --cream-dark: #f0e8da;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --white: #ffffff;
+  --border: #e2d9cc;
+  --success: #15803d;
+  --shadow: 0 4px 24px rgba(15,32,68,0.10);
+  --shadow-lg: 0 8px 40px rgba(15,32,68,0.16);
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* ── Admin-specific additions ── */
+  --bg: #f8fafc;
+  --danger: #b91c1c;
   --danger-bg: #fef2f2;
-  --success: #16a34a;
-  --success-bg: #f0fdf4;
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 8px rgba(15,32,68,0.08);
-  --shadow-md: 0 4px 20px rgba(15,32,68,0.12);
 }
 
-html, body, #root { height: 100%; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: 0.93rem;
   line-height: 1.6;
+  min-height: 100vh;
 }
 
+h1, h2, h3 { font-family: 'DM Sans', sans-serif; line-height: 1.2; font-weight: 700; }
+
 button { cursor: pointer; font-family: 'DM Sans', sans-serif; }
-input, select, textarea { font-family: 'DM Sans', sans-serif; }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.animate { animation: fadeIn 0.25s ease forwards; }
+select, input, textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+}
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate { animation: fadeUp 0.3s ease forwards; }
+.fade-in { animation: fadeIn 0.3s ease forwards; }

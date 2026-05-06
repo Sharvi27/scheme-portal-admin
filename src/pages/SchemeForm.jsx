@@ -7,6 +7,25 @@ const emptyScheme = {
   issuing_body: 'central', scheme_type: '', is_active: true,
 }
 
+// ─── All issuing bodies — kept in sync with public site ──────────────────────
+const ISSUING_BODY_OPTIONS = [
+  { value: 'central',     label: '🇮🇳 Central Government' },
+  { value: 'delhi',       label: '🏙️ Delhi Government' },
+  { value: 'haryana',     label: '🟢 Haryana Government' },
+  { value: 'karnataka',   label: '🟠 Karnataka Government' },
+  { value: 'maharashtra', label: '🟣 Maharashtra Government' },
+  { value: 'tamil_nadu',  label: '🔵 Tamil Nadu Government' },
+  { value: 'telangana',   label: '🟡 Telangana Government' },
+]
+
+// ─── Scheme types — must match exactly what the public site expects ───────────
+// Public site checks: scheme.scheme_type === 'DBT' and displays the value directly
+const SCHEME_TYPE_OPTIONS = [
+  { value: '',      label: 'Select type...' },
+  { value: 'DBT',   label: '💳 DBT (Direct Benefit Transfer)' },
+  { value: 'Non-DBT', label: '🎁 Non-DBT (Services / In-Kind)' },
+]
+
 function RuleEditor({ attribute, rule, onChange, onRemove }) {
   const { key, label, data_type } = attribute
 
@@ -103,7 +122,6 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  // Load existing eligibility — waits for attributes to be available before mapping
   useEffect(() => {
     if (!isEdit || attributes.length === 0) return
     setEligibilityLoading(true)
@@ -119,7 +137,7 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
             attribute: attributes.find(a => a.id === e.attribute_id),
             rule: e.rule,
           }))
-          .filter(e => e.attribute) // only keep rules whose attribute loaded
+          .filter(e => e.attribute)
         setEligibility(mapped)
         setEligibilityLoading(false)
       })
@@ -155,7 +173,6 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
           scheme_type: form.scheme_type, is_active: form.is_active,
         }).eq('id', schemeId)
         if (err) throw err
-        // Delete and re-insert eligibility rules atomically
         await supabase.from('scheme_eligibility').delete().eq('scheme_id', schemeId)
       } else {
         const { data, error: err } = await supabase.from('schemes').insert({
@@ -175,11 +192,10 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
         if (err) throw err
       }
 
-      onSave() // triggers parent refresh and closes modal
+      onSave()
     } catch (err) {
       setError(err.message)
     } finally {
-      // Always reset saving state, even if component is still mounted
       setSaving(false)
     }
   }
@@ -191,27 +207,28 @@ export default function SchemeForm({ scheme, attributes, onSave, onCancel }) {
       {/* Basic info */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ gridColumn: '1 / -1' }}>
-          <Input label="Scheme Name" value={form.name} onChange={v => setField('name', v)} placeholder="e.g. Delhi Old Age Pension" required />
+          <Input label="Scheme Name" value={form.name} onChange={v => setField('name', v)} placeholder="e.g. Karnataka Sandhya Suraksha Yojane" required />
         </div>
-        <Select label="Issuing Body" value={form.issuing_body} onChange={v => setField('issuing_body', v)}
-          options={[
-            { value: 'central', label: '🇮🇳 Central Government' },
-            { value: 'delhi',   label: '🏙️ Delhi Government' },
-            { value: 'haryana', label: '🟢 Haryana Government' },
-          ]} />
+        <Select
+          label="Issuing Body"
+          value={form.issuing_body}
+          onChange={v => setField('issuing_body', v)}
+          options={ISSUING_BODY_OPTIONS}
+        />
         <Select label="Status" value={String(form.is_active)} onChange={v => setField('is_active', v === 'true')}
           options={[{ value: 'true', label: 'Active' }, { value: 'false', label: 'Inactive' }]} />
       </div>
 
-      <Select label="Scheme Type" value={form.scheme_type} onChange={v => setField('scheme_type', v)}
-        options={[
-          { value: '',           label: 'Select type...' },
-          { value: 'dbt',        label: 'DBT' },
-          { value: 'insurance',  label: 'Insurance' },
-          { value: 'subsidy',    label: 'Subsidy' },
-          { value: 'kind',       label: 'Kind' },
-          { value: 'livelihood', label: 'Livelihood' },
-        ]} />
+      <Select
+        label="Scheme Type"
+        value={form.scheme_type}
+        onChange={v => setField('scheme_type', v)}
+        options={SCHEME_TYPE_OPTIONS}
+      />
+      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: -14 }}>
+        DBT = money directly to bank account. Non-DBT = free services, goods, or in-kind benefits.
+      </p>
+
       <Textarea label="Description" value={form.description} onChange={v => setField('description', v)} placeholder="Brief description of the scheme..." rows={3} />
       <Textarea label="Benefits" value={form.benefits} onChange={v => setField('benefits', v)} placeholder="What benefits does this scheme provide?" rows={4} />
       <Textarea label="Documents Required" value={form.documents_required} onChange={v => setField('documents_required', v)} placeholder="e.g. Aadhaar card, bank account details, income certificate..." rows={3} />

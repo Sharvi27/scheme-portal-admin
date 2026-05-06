@@ -94,14 +94,18 @@ export default function App() {
 
   const handleLogout = () => supabase.auth.signOut()
 
-  // Memoised stats — not recomputed on every render
+  // ─── Stats — one card per issuing body + totals ───────────────────────────
   const stats = useMemo(() => [
-    { label: 'Total Schemes',    value: schemes.length,                                        icon: '📋' },
-    { label: 'Active',           value: schemes.filter(s => s.is_active).length,               icon: '✅' },
-    { label: 'Delhi Schemes',    value: schemes.filter(s => s.issuing_body === 'delhi').length, icon: '🏙️' },
-    { label: 'Central Govt',     value: schemes.filter(s => s.issuing_body === 'central').length, icon: '🇮🇳' },
-    { label: 'Haryana Schemes',  value: schemes.filter(s => s.issuing_body === 'haryana').length, icon: '🟢' },
-    { label: 'Attributes',       value: attributes.length,                                     icon: '🏷️' },
+    { label: 'Total Schemes',    value: schemes.length,                                              icon: '📋' },
+    { label: 'Active',           value: schemes.filter(s => s.is_active).length,                    icon: '✅' },
+    { label: 'Central Govt',     value: schemes.filter(s => s.issuing_body === 'central').length,    icon: '🇮🇳' },
+    { label: 'Delhi',            value: schemes.filter(s => s.issuing_body === 'delhi').length,      icon: '🏙️' },
+    { label: 'Haryana',          value: schemes.filter(s => s.issuing_body === 'haryana').length,    icon: '🟢' },
+    { label: 'Karnataka',        value: schemes.filter(s => s.issuing_body === 'karnataka').length,  icon: '🟠' },
+    { label: 'Maharashtra',      value: schemes.filter(s => s.issuing_body === 'maharashtra').length,icon: '🟣' },
+    { label: 'Tamil Nadu',       value: schemes.filter(s => s.issuing_body === 'tamil_nadu').length, icon: '🔵' },
+    { label: 'Telangana',        value: schemes.filter(s => s.issuing_body === 'telangana').length,  icon: '🟡' },
+    { label: 'Attributes',       value: attributes.length,                                           icon: '🏷️' },
   ], [schemes, attributes])
 
   if (authLoading) {
@@ -125,7 +129,7 @@ export default function App() {
             <div key={label} style={{
               background: 'white', borderRadius: 'var(--radius)', border: '1px solid var(--border)',
               padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12,
-              boxShadow: 'var(--shadow)', minWidth: 140,
+              boxShadow: 'var(--shadow)', minWidth: 130,
             }}>
               <span style={{ fontSize: '1.3rem' }}>{icon}</span>
               <div>
@@ -136,7 +140,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* Data error with retry */}
         {dataError && (
           <div style={{ background: 'var(--danger-bg)', border: '1px solid #fca5a5', borderRadius: 'var(--radius-sm)', padding: '14px 18px', color: 'var(--danger)', fontSize: '0.9rem', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>⚠️ Failed to load data: {dataError}</span>
